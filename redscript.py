@@ -78,10 +78,9 @@ def extract_words(text):
     return words
 
 
-def word_count_to_csv(file_name,data) :
-
+def word_count_to_csv(file_name,data):
     # File path
-    file_path = file_name + '.csv'
+    file_path = file_name
     # Writing data to CSV file
     with open(file_path, mode='w', newline='') as file:
         writer = csv.writer(file)
@@ -96,7 +95,7 @@ def clean_data(data, column):
 
 
 def get_word_counts(data, column_name, limiter=10):
-    filter = ['to', 'is', 'my', 'how', 'was', 'up', 'are', 'have', 'just', 'if', 'has', 'when', 'had', 'an']
+    filter = ['to', 'is', 'my', 'how', 'was', 'up', 'are', 'have', 'just', 'if', 'has', 'when', 'had', 'an', 'your', 'not', 'comes' ]
     filter.extend(pronouns)
     filter.extend(function_words)
     data['words'] = data[column_name].apply(extract_words)
@@ -116,9 +115,19 @@ def get_word_counts(data, column_name, limiter=10):
     return word_count_list
 
 
-def user_name_count(data, column_name):
+def user_name_count(data, column_name, limiter=1):
     data = clean_data(data,column_name)
-    return get_word_counts(data, column_name, 1)
+    # for user_name in data[column_name]:
+    #     print(user_name)
+    users = data[column_name].tolist()
+    word_counts = Counter(users)
+    sorted_words = sorted(word_counts.items(), key=lambda x: x[1], reverse=True)
+    word_count_list= []
+    for word, count in sorted_words:
+        if count < limiter:
+            break
+        word_count_list.append([word, count])
+    return word_count_list
 
 def get_phrases(data, column_name):
     data = clean_data(data,column_name)
